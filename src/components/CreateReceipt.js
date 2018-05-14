@@ -9,6 +9,7 @@ import Paper from 'material-ui/Paper';
 import FlightTakeoff from 'material-ui/svg-icons/action/flight-takeoff';
 import Receipt from 'material-ui/svg-icons/action/receipt';
 import ReportProblem from 'material-ui/svg-icons/action/report-problem';
+import {redA400} from 'material-ui/styles/colors';
 
 const styles = {
 	paper_content: {
@@ -23,6 +24,9 @@ const styles = {
 		padding: 15,
 		textAlign: 'left',
 		display: 'inline-block',
+	},
+	alarm_text: {
+		color: 'red'
 	}
 };
 
@@ -219,7 +223,7 @@ class CreateReceipt extends Component {
 				<div style={styles.paper_content}>
 				<h3 className="frente">Create Receipt</h3>
 				<br/>
-					<p>A Euro transfer to CoF Foundations will create a receipt to allow the app to create DET tokens. This form is to create a receipt manually.</p>
+					<p style={styles.alarm_text}><ReportProblem color={redA400} /> This is for testing purposes only on Rinkeby testnet</p>
 					{this.state.hasWallet && <p>Balance: Ξ {this.state.ethBalance} (ETH) nonce: {this.state.nonce}</p>}
 					{!this.state.hasWallet && <p><ReportProblem/> No wallet found</p>}
 					
