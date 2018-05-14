@@ -5,19 +5,17 @@ import '../css/frente.css';
 import '../css/oswald.css';
 import Container from 'muicss/lib/react/container';
 import MuiThemeProvider from 'material-ui/styles/MuiThemeProvider';
-//import MyTopNavigation from './materialUI/MyTopNavigation.js';
 import MyBottomNavigation from './materialUI/MyBottomNavigation.js';
 import Home from './Home.js';
 import CreateWallet from './CreateWallet.js';
 import RecoverWallet from './RecoverWallet.js';
-import Preferences from './Preferences.js';
+//import Preferences from './Preferences.js';
 
 import LogoImageSmall from '../img/beeldmerk_30x32_darkblue.png';
 
 import AppBar from 'material-ui/AppBar';
 import IconButton from 'material-ui/IconButton';
 import IconMenu from 'material-ui/IconMenu';
-//import Menu from 'material-ui/Menu';
 import MenuItem from 'material-ui/MenuItem';
 import MoreVertIcon from 'material-ui/svg-icons/navigation/more-vert';
 import AssignmentIndIcon from 'material-ui/svg-icons/action/assignment-ind';
@@ -74,14 +72,14 @@ class App extends Component {
 		});
 	};
 
-	handlePrefs = (event, value) => {
+/*	handlePrefs = (event, value) => {
 		this.setState({
 			showCreateWallet: false,
 			showRecoverWallet: false,
 			showHome:false,
 			showPrefs: true
 		});
-	};
+	};*/
 
 	handleCreateWallet = (event, value) => {
 		this.setState({
@@ -122,7 +120,6 @@ class App extends Component {
 								}
 							>
 							<MenuItem onClick={this.handleHome} value="2" primaryText="Home" leftIcon={<img src={LogoImageSmall}/>} />
-							<MenuItem onClick={this.handlePrefs} value="3" primaryText="Preferences" leftIcon={<AssignmentIndIcon/>} />
 							<MenuItem onClick={this.handleRecoverWallet} value="5" primaryText="Wallet" leftIcon={<WalletIcon/>} />
 						</IconMenu>
 					</AppBar>
@@ -133,8 +130,7 @@ class App extends Component {
 				<div>
 					<MuiThemeProvider>
 						<div>
-							{this.state.showHome ? <Home /> : null}
-							{this.state.showPrefs ? <Preferences propFromParent={newTestme} walletCallback={walletAddress}  /> : null}
+							{this.state.showHome ? <Home propFromParent={newTestme} /> : null}
 							{this.state.showCreateWallet ? <CreateWallet callbackFromParent={this.walletCallback.bind(this)} /> : null}
 							{this.state.showRecoverWallet ? <RecoverWallet callbackFromParent={this.walletCallback.bind(this)} callbackFromParent2={this.handleCreateWallet.bind(this)}  /> : null}
 						{this.state.message}</div>

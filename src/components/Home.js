@@ -70,6 +70,7 @@ class Home extends Component {
 					<div className="mui--z2">
 						<Paper style={styles.paper} zDepth={0} >
 							<TokenInfo/>
+							<p>{this.props.propFromParent}</p>
 						</Paper>
 					</div>
 				</Tab>
