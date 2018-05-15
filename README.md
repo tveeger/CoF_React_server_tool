@@ -9,7 +9,7 @@ Later:
 Installing:
 - copy code to location
 - open terminal
-- go to root idrectory of your code
+- go to root drectory of your code
 - npm install
 - npm run start
 
