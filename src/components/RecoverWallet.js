@@ -40,6 +40,7 @@ class RecoverWalletForm extends React.Component {
 			hasWallet: false,
 			walletSaved: false,
 			isBusy: false,
+			etherscanLink: '',
 		};
 	}
 
@@ -77,7 +78,7 @@ class RecoverWalletForm extends React.Component {
 		let isValidMnemonic = ethers.HDNode.isValidMnemonic(thisMnemonic);
 		
 		if (isValidMnemonic) {
-			this.setState({walletSaved: true});
+			
 			wallet = ethers.Wallet.fromMnemonic(thisMnemonic);
 			wallet.provider = etherscanProvider;
 			let walletObject = {
@@ -85,18 +86,21 @@ class RecoverWalletForm extends React.Component {
 				privateKey: wallet.privateKey,
 				provider: wallet.provider
 			}
+			this.setState({walletAddress: wallet.address});
 
 			AsyncStorage.setItem('walletAddress', wallet.address)
 			.then(() => { 
-				this.setState({walletAddress: wallet.address});
 				this.setState({message: "we have a recovered address"}); 
 				this.setState({isBusy: false});
-				this.passTheWalletAddress();
 			})
 			.catch(() => { this.setState({message: "Something went wrong!!!"});});
 
 			AsyncStorage.setItem('walletObject', JSON.stringify(walletObject))
-			.then(() => { this.setState({message: "Address: " + walletObject.address})});
+			.then(() => { 
+				this.setState({walletSaved: true});
+				this.setState({etherscanLink: "https://rinkeby.etherscan.io/address/" + walletObject.address});
+				this.passTheWalletAddress();
+			});
 			
 		} else {
 			this.setState({message: "Invalid mnemonic"});
@@ -106,6 +110,7 @@ class RecoverWalletForm extends React.Component {
 	passTheWalletAddress = () => {
 		try {
 			this.props.callbackFromParent(this.state.walletAddress);
+
 		}
 		catch(error) {
 
@@ -129,18 +134,18 @@ class RecoverWalletForm extends React.Component {
 				<h3 className="frente">Recover your excisting wallet</h3>
 				<br/>
 				{this.state.hasWallet && <p>Current wallet address: {this.state.walletAddress}</p>}
-				<p style={styles.prompt}>Enter your mnemonic  in the field below.</p>
-				
-					<Input
-						style={styles.input}
-						placeholder = "Your 12 word mnemonic phrase, separated with a space"
-						ref={el => { this.input = el; }}
-					/>
-					<Button type="submit" onClick={() => this.submitMnemonic(this.el)} color="primary" variant="raised">Recover</Button>			
-					<Button type="button" onClick={() => this.unconnect(this.el)} color="primary" variant="raised">Clear</Button>
-					<br/><Button type="button" onClick={() => this.passTheRoute()} color="accent" variant="flat">Create New Wallet</Button>
-					{this.state.isBusy && <p>Just a sec... We are recovering the wallet info.</p>}
-					<p>{this.state.message}</p>
+				<p style={styles.prompt}>Enter your mnemonic  in the field below.</p>				
+				<Input
+					style={styles.input}
+					placeholder = "Your 12 word mnemonic phrase, separated with a space"
+					ref={el => { this.input = el; }}
+				/>
+				<Button type="submit" onClick={() => this.submitMnemonic(this.el)} color="primary" variant="raised">Recover</Button>			
+				<Button type="button" onClick={() => this.unconnect(this.el)} color="primary" variant="raised">Clear</Button>
+				<br/><Button type="button" onClick={() => this.passTheRoute()} color="accent" variant="flat">Create New Wallet</Button>
+				{this.state.isBusy && <p>Just a sec... We are recovering the wallet info.</p>}
+				<p>{this.state.message}</p>
+				{this.state.walletSaved && <p>Current wallet address:  <a href={this.state.etherscanLink} target='_new'>{this.state.walletAddress}</a> (link to Etherscan.io)</p>}
 			</div>
 		</Paper>
 

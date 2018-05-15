@@ -127,7 +127,7 @@ class CreateReceipt extends Component {
 
 			if(contract !== '') {
 				contract.getDetsBalance(walletAddress).then(function(result){
-					self.setState({tokenBalance: parseInt(result)});
+					self.setState({tokenBalance: parseInt(result, 10)});
 				});
 				contract.totalSupply().then(function(result){
 					self.setState({totalDetsSupply: result.toString()});
@@ -204,10 +204,10 @@ class CreateReceipt extends Component {
 				this.setState({message: 'stage-3'});
 				wallet.provider.waitForTransaction(transactionHash).then(function(transaction) {
 					this.socket.send(signedTransaction); //TODO
-					this.setState({infoMessage: "Your receipt has been confirmed." + transaction.hash});
+					this.setState({infoMessage: "Your receipt has been confirmed."});
 					this.setState({isSigned: false});
 					this.setState({isTransferSuccess: true});
-					this.setState({hash: hash.toString()});
+					this.setState({hash: transaction.hash});
 					this.setState({message: 'stage-4'});
 					this.getWalletInfo();
 				});
@@ -221,11 +221,11 @@ class CreateReceipt extends Component {
 		return (
 			<Paper style={styles.paper} zDepth={3} >
 				<div style={styles.paper_content}>
-				<h3 className="frente">Create Receipt</h3>
-				<br/>
-					<p style={styles.alarm_text}><ReportProblem color={redA400} /> This is for testing purposes only on Rinkeby testnet</p>
+					<h3 className="frente">Create Receipt</h3>
+					<br/>
+					{this.state.hasWallet && <p style={styles.alarm_text}><ReportProblem color={redA400} /> This is for testing purposes only on Rinkeby testnet</p>}
 					{this.state.hasWallet && <p>Balance: Ξ {this.state.ethBalance} (ETH) nonce: {this.state.nonce}</p>}
-					{!this.state.hasWallet && <p><ReportProblem/> No wallet found</p>}
+					{!this.state.hasWallet && <p><ReportProblem color={redA400}/> No wallet found</p>}
 					
 					<Form inline={false} onSubmit={this.handleStoreReceipt}>
 						{this.state.hasWallet && <Input ref="id" type="text" label="ID" value={this.state.id} onChange={this.handleInputChangeId} required={true} />}
@@ -236,7 +236,7 @@ class CreateReceipt extends Component {
 					</Form>
 					<p>{this.state.message} </p>
 					{this.state.isSigned && <p><Receipt/> Signed receipt. Just wait a minute...</p>}
-					{this.state.isTransferSuccess && <p><FlightTakeoff/> {this.state.infoMessage}, Your transaction hash: {this.state.hash} </p>}
+					{this.state.isTransferSuccess && <p><FlightTakeoff/> {this.state.infoMessage}, hash: {this.state.hash} </p>}
 				</div>
 			</Paper>
 		);

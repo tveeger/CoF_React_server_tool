@@ -8,6 +8,8 @@ import Input from 'muicss/lib/react/input';
 import Paper from 'material-ui/Paper';
 import ReportProblem from 'material-ui/svg-icons/action/report-problem';
 import Done from 'material-ui/svg-icons/action/done';
+import ThumbUp from 'material-ui/svg-icons/action/thumb-up';
+import {redA400} from 'material-ui/styles/colors';
 
 const styles = {
 	paper_content: {
@@ -63,6 +65,11 @@ class SendEth extends Component {
 		})
 	}
 
+	componentWillUnmount() {
+		this.setState({isSigned: false});
+		this.setState({isTransferSuccess: false});
+	}
+
 	getWalletInfo = async () => {
 		try {
 			const self = this;
@@ -82,7 +89,7 @@ class SendEth extends Component {
 			if(contract !== '') {
 				//balanceOf getDetsBalance
 				contract.getDetsBalance(walletAddress).then(function(result){
-					self.setState({tokenBalance: parseInt(result)});
+					self.setState({tokenBalance: parseInt(result, 10)});
 				});
 				//total DETs supply
 				contract.totalSupply().then(function(result){
@@ -133,6 +140,7 @@ class SendEth extends Component {
 		//this.setState({message: privateKey});
 		let wallet = new Wallet(privateKey);
 		wallet.provider = this.state.provider;
+		//let provider = this.state.provider;
 		let ethAmount = this.state.ethAmount;
 		let toAddress = this.state.recipient;
 		let nonce = this.state.nonce;
@@ -142,23 +150,23 @@ class SendEth extends Component {
 			nonce: ethers.utils.bigNumberify(nonce),
 			gasLimit: ethers.utils.bigNumberify(21000),
 			gasPrice: ethers.utils.bigNumberify("20000000000"),
-			from: walletAddress,
+			//from: walletAddress,
 			to: toAddress,
 			value: ethers.utils.parseEther(ethAmount),
 			data: "0x",
 		};
 		let signedTransaction = wallet.sign(transaction);
-		let parsedTransaction = ethers.Wallet.parseTransaction(signedTransaction);
-		this.setState({message: 'signed: ' + parsedTransaction});
+		//let parsedTransaction = ethers.Wallet.parseTransaction(signedTransaction);
+		//this.setState({message: 'signed: ' + signedTransaction});
 		this.setState({isSigned: true});
 		wallet.provider.sendTransaction(signedTransaction).then(function(hash) {
 			transactionHash = hash;
-			this.setState({message: "transaction has been send" + hash});
-			this.setState({isSigned: false});
-		});
-		wallet.provider.waitForTransaction(transactionHash).then(function(transaction) {
-			this.setState({message: 'Transaction Mined: ' + transaction.hash});
-			this.setState({isTransferSuccess: true});
+			wallet.provider.waitForTransaction(transactionHash).then(function(transaction) {
+				this.setState({message: "transaction has been send" + hash.toString()});
+				this.setState({isSigned: false});
+				this.setState({isTransferSuccess: true});
+				this.getWalletInfo();
+			});
 		});
 
 	}
@@ -170,15 +178,15 @@ class SendEth extends Component {
 				<h3 className="frente">Send Ether</h3>
 				<br/>
 					<p></p>
-					{this.state.hasWallet && <p>Balance: Ξ {this.state.ethBalance} (ETH), Network: {this.state.provider.name}</p>}
+					{!this.state.hasWallet && <p><ReportProblem color={redA400}/> No wallet found</p>}
+					{this.state.hasWallet && <p>Balance: Ξ {this.state.ethBalance} (ETH), Network: {this.state.provider.name}, Nonce: {this.state.nonce}</p>}
 					<Form inline={false} onSubmit={this.handleSubmit}>
 						{this.state.hasWallet && <Input ref="recipient" type="text" placeholder="42 character Ethereum address" label="Recipient" value={this.state.recipient} onChange={this.handleInputChangeRecipient} required={true} />}
 						{this.state.hasWallet && <Input ref="detsAmount" type="text" label="Ether Amount" value={this.state.detsAmount} onChange={this.handleInputChangeEthAmount} required={true} />}<br/>
 						{this.state.hasWallet && <Button type="submit" onClick={this.handleSubmit} color="primary" variant="raised">Submit</Button>}
 					</Form>
-					{this.state.isSigned && <p><Done/> signed transaction. Waiting for confirmation...</p>}
-					{!this.state.hasWallet && <p><ReportProblem/> No wallet found</p>}
-					{this.state.isTransferSuccess && <p>Transfer is successful</p>}
+					{this.state.isSigned && <p><Done/> Signed: {this.state.isSigned.toString()}. Waiting for confirmation...</p>}					
+					{this.state.isTransferSuccess && <p><ThumbUp/> Transaction send: {this.state.isTransferSuccess.toString()} Transfer is successful</p>}
 					<p>{this.state.message}</p>
 				</div>
 			</Paper>

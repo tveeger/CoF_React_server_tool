@@ -5,6 +5,9 @@ import metacoin_artifacts from '../contracts/EntboxContract.json';
 import Paper from 'material-ui/Paper';
 import LogoImage from '../img/logo_dblue_transp_304x170.png';
 import ReportProblem from 'material-ui/svg-icons/action/report-problem';
+import Forward from 'material-ui/svg-icons/content/forward';
+import {redA400} from 'material-ui/styles/colors';
+import {blueGrey200} from 'material-ui/styles/colors';
 
 const styles = {
 	paper_content: {
@@ -38,12 +41,14 @@ class TokenInfo extends React.Component {
 			tokenSymbol: '',
 			tokenDecimals: '',
 			tokenVersion: '',
+			tokenBalance: 0,
 			totalDetsAmount: '',
 			totalDetsSupply: '',
 			web3: null,
 			showHome: true,
 			walletAddress: '',
 			hasWallet: false,
+			etherscanLink: '',
 		}
 		this.componentWillMount = this.componentWillMount.bind(this);
 		this.getWalletInfo = this.getWalletInfo.bind(this);
@@ -53,7 +58,8 @@ class TokenInfo extends React.Component {
 		var self = this;
 		AsyncStorage.getItem("walletAddress").then(walletAddress => {
 			if (walletAddress) {
-				this.setState(() => ({walletAddress: walletAddress}))
+				this.setState(() => ({walletAddress: walletAddress}));
+				this.setState(() => ({etherscanLink: "https://rinkeby.etherscan.io/address/" + walletAddress}))
 				this.setState(() => ({hasWallet: true}))
 				self.getWalletInfo();
 			} else {this.setState({hasWallet: false});}
@@ -99,6 +105,10 @@ class TokenInfo extends React.Component {
 				contract.totalSupply().then(function(result){
 					self.setState({totalDetsSupply: result.toString()});
 				});
+				//DET balance
+				contract.getDetsBalance(this.state.walletAddress).then(function(result){
+					self.setState({tokenBalance: parseInt(result, 10)});
+				});
 			} else { self.setState({message: 'No contract info'}); }
 		}
 		catch(error) {
@@ -119,9 +129,10 @@ class TokenInfo extends React.Component {
 					{this.state.hasWallet && <p>Symbol:{this.state.tokenSymbol}, Version: {this.state.tokenVersion}, Decimals: {this.state.tokenDecimals}</p>}
 					{this.state.hasWallet && <p>Total generated supply: {this.state.totalDetsSupply} DET</p>}
 					{this.state.hasWallet && <p>Current total amount: {this.state.totalDetsAmount} DET</p>}
-					{!this.state.hasWallet && <p><ReportProblem/> No wallet found. Please create or recover your wallet from the wallet menu item.</p>}
-					{this.state.hasWallet && <p>Wallet: {this.state.walletAddress}</p>}
-					<p>{this.state.message}</p>	
+					{!this.state.hasWallet && <p><ReportProblem color={redA400}/> No wallet found. Please create or recover your wallet from the wallet menu item.</p>}
+					{this.state.hasWallet && <p>Wallet: <a href={this.state.etherscanLink} target='_new'>{this.state.walletAddress}<Forward color={blueGrey200}/></a></p>}
+					{this.state.hasWallet && <p>Your balance: {this.state.tokenBalance.toString()} DET</p>}
+					<p></p>	
 				</div>
 			</Paper>
 		)
