@@ -44,6 +44,7 @@ class TokenInfo extends React.Component {
 			tokenBalance: 0,
 			totalDetsAmount: '',
 			totalDetsSupply: '',
+			tokenCreatedStatusFromReceipt: true,
 			web3: null,
 			showHome: true,
 			walletAddress: '',
@@ -131,7 +132,7 @@ class TokenInfo extends React.Component {
 					{this.state.hasWallet && <p>Current total amount: {this.state.totalDetsAmount} DET</p>}
 					{!this.state.hasWallet && <p><ReportProblem color={redA400}/> No wallet found. Please create or recover your wallet from the wallet menu item.</p>}
 					{this.state.hasWallet && <p>Wallet: <a href={this.state.etherscanLink} target='_new'>{this.state.walletAddress}<Forward color={blueGrey200}/></a></p>}
-					{this.state.hasWallet && <p>Your balance: {this.state.tokenBalance.toString()} DET</p>}
+					{this.state.hasWallet && <p>Your balance: {this.state.tokenBalance.toString()} DET.</p>}
 					<p></p>	
 				</div>
 			</Paper>

@@ -2,6 +2,7 @@ import React, { Component } from 'react';
 import TokenInfo from './TokenInfo.js'
 import CreateReceipt from './CreateReceipt.js'
 import SendEth from './SendEth.js'
+import Payments from './Payments.js'
 
 import {Tabs, Tab} from 'material-ui/Tabs'
 import Paper from 'material-ui/Paper';
@@ -71,6 +72,14 @@ class Home extends Component {
 						<Paper style={styles.paper} zDepth={0} >
 							<TokenInfo/>
 							<p>{this.props.propFromParent}</p>
+						</Paper>
+					</div>
+				</Tab>
+
+				<Tab label="Payments" style={styles.headline}>
+					<div className="mui--z2">
+						<Paper style={styles.paper} zDepth={0} >
+							<Payments/>
 						</Paper>
 					</div>
 				</Tab>

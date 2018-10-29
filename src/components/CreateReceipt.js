@@ -7,6 +7,7 @@ import Button from 'muicss/lib/react/button';
 import Input from 'muicss/lib/react/input';
 import Paper from 'material-ui/Paper';
 import FlightTakeoff from 'material-ui/svg-icons/action/flight-takeoff';
+import Hourglass from 'material-ui/svg-icons/action/hourglass-empty';
 import Receipt from 'material-ui/svg-icons/action/receipt';
 import ReportProblem from 'material-ui/svg-icons/action/report-problem';
 import {redA400} from 'material-ui/styles/colors';
@@ -59,9 +60,9 @@ class CreateReceipt extends Component {
 		this.handleInputChangeEuroAmount = this.handleInputChangeEuroAmount.bind(this);
 		this.handleStoreReceipt = this.handleStoreReceipt.bind(this);
 
-		this.socket = new WebSocket('ws://45.32.186.169:28475');
+		//this.socket = new WebSocket('ws://45.32.186.169:28475'); //chainsoffreedom.org
 		//this.socket = new WebSocket('ws://127.0.0.1:28475');
-		//this.socket = new WebSocket('ws://echo.websocket.org'); //test
+		this.socket = new WebSocket('ws://echo.websocket.org'); //test
 		this.socket.onopen = () => {
 			this.setState({connected:true})
 		};
@@ -87,15 +88,14 @@ class CreateReceipt extends Component {
 				this.setState(() => ({ walletAddress: walletAddress }));
 				this.setState(() => ({ hasWallet: true }));
 			}
-		})
+		});
 		
 		AsyncStorage.getItem("walletObject").then(walletObject => {
 			if (walletObject) {
 				this.setState(() => ({ walletObject: walletObject }));
-
 				self.getWalletInfo();
 			}
-		})
+		});
 	}
 
 	componentWillUnmount() {
@@ -114,8 +114,10 @@ class CreateReceipt extends Component {
 			const walletAddress = walletObj.address;
 			//const etherscanApiKey = walletObj.provider.apiKey;
 			self.setState({tokenAddress:tokenAddress});
+			
 			let etherscanProvider = new ethers.providers.EtherscanProvider(daNetwork, etherscanApiKey);
 			self.provider = etherscanProvider;
+
 			let contract = new ethers.Contract(tokenAddress, metacoin_artifacts, etherscanProvider);
 			contract.connect(etherscanProvider);
 
@@ -169,25 +171,24 @@ class CreateReceipt extends Component {
 
 	handleStoreReceipt(e) {
 		e.preventDefault();
-		const walletAddress = this.state.walletAddress;
-		this.setState({message: 'stage-1'});
-		let walletObj = JSON.parse(this.state.walletObject);
+		const self = this;
+		const walletAddress = self.state.walletAddress;
+		let walletObj = JSON.parse(self.state.walletObject);
 		if (walletObj !== null) {
-			this.setState({hasWallet: true});
+			self.setState({hasWallet: true});
 			let wallet = new ethers.Wallet(walletObj.privateKey);
-			wallet.provider = this.provider;
+			wallet.provider = self.provider;
 
-			let id = this.state.id;
-			let tokenCreator = this.state.tokenCreator;
-			let detsAmount = this.state.detsAmount;
-			let euroAmount = this.state.euroAmount;
+			let id = self.state.id;
+			let tokenCreator = self.state.tokenCreator;
+			let detsAmount = self.state.detsAmount;
+			let euroAmount = self.state.euroAmount;
 			
 			let iface = new ethers.Interface(metacoin_artifacts);
 			let functionIface = iface.functions.storeReceipt(id,tokenCreator,detsAmount,euroAmount);
 			let transactionHash;
-			let tokenAddress = this.state.tokenAddress;
-			let nonce = this.state.nonce;
-			this.setState({message: 'stage-2'});
+			let tokenAddress = self.state.tokenAddress;
+			let nonce = self.state.nonce;
 			var tx = {
 				from: walletAddress,
 				to: tokenAddress,
@@ -198,22 +199,20 @@ class CreateReceipt extends Component {
 				data: functionIface.data,
 			}
 			let signedTransaction = wallet.sign(tx);
-			this.setState({isSigned: true});
+			self.setState({isSigned: true});
 			wallet.provider.sendTransaction(signedTransaction).then(function(hash) {
 				transactionHash = hash;
-				this.setState({message: 'stage-3'});
 				wallet.provider.waitForTransaction(transactionHash).then(function(transaction) {
-					this.socket.send(signedTransaction); //TODO
-					this.setState({infoMessage: "Your receipt has been confirmed."});
-					this.setState({isSigned: false});
-					this.setState({isTransferSuccess: true});
-					this.setState({hash: transaction.hash});
-					this.setState({message: 'stage-4'});
-					this.getWalletInfo();
+					self.socket.send(signedTransaction); //TODO
+					self.setState({infoMessage: "Your receipt has been confirmed."});
+					self.setState({isSigned: false});
+					self.setState({isTransferSuccess: true});
+					self.setState({hash: transaction.hash});
+					self.getWalletInfo();
 				});
 			});
 
-			this.setState({test: walletObj.provider.baseUrl});
+			self.setState({test: walletObj.provider.baseUrl});
 		}	
 	}
 	
@@ -234,8 +233,8 @@ class CreateReceipt extends Component {
 						{this.state.hasWallet && <Input ref="euroAmount" type="text" label="EUROs Amount" value={this.state.euroAmount} onChange={this.handleInputChangeEuroAmount} required={true} />}<br/>
 						{this.state.hasWallet && <Button type="submit" onClick={this.handleStoreReceipt} color="primary" variant="raised">Submit</Button>}
 					</Form>
-					<p>{this.state.message} </p>
-					{this.state.isSigned && <p><Receipt/> Signed receipt. Just wait a minute...</p>}
+					<p>{this.state.message}</p>
+					{this.state.isSigned && <p><Hourglass/> Signed receipt. Just wait a minute...</p>}
 					{this.state.isTransferSuccess && <p><FlightTakeoff/> {this.state.infoMessage}, hash: {this.state.hash} </p>}
 				</div>
 			</Paper>

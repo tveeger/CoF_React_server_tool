@@ -37,6 +37,7 @@ class MyBottomNavigation extends Component {
 		
 		this.state = {
 			selectedIndex: 3,
+			value: '',
 		};
 	}
   
@@ -55,29 +56,34 @@ class MyBottomNavigation extends Component {
 		}
 	}
 
+	handleChange = (event, value) => {
+		this.setState({ value });
+	};
+
 
 	render() {
+		const { value } = this.state;
 		return (
 			<Paper zDepth={2}>
-				<BottomNavigation showLabels={false} selectedIndex={this.state.selectedIndex}>
+				<BottomNavigation value={value} onChange={this.handleChange}>
 					<BottomNavigationItem
 						label=""
 						icon={<img src={Github} style={styles.bottom_icon} />}
-						onTouchTap={() =>  this.selectBottomNavigationItem(2)}
+						value="github"
 					/>
 
 					<BottomNavigationItem
 						label=""
 						icon={<img src={Ethereum} style={styles.bottom_icon} />}
-						onTouchTap={() => this.selectBottomNavigationItem(1)}
+						value="ethereum"
 					/>
 					
 					<BottomNavigationItem
 						label=""
 						icon={android}
-						onTouchTap={() => this.selectBottomNavigationItem(0)}
+						value="playstore"
 					/>
-				</BottomNavigation>
+				</BottomNavigation>{this.state.value}
 			</Paper>
 		);
 	}

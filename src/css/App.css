@@ -11,6 +11,12 @@ h3.frente {
   font-family: 'frente_h1regular', 'Arial Narrow', sans-serif;
 }
 
+h4.frente {
+  font-size: 200%;
+  color: #827a7a;
+  font-family: 'frente_h1regular', 'Arial Narrow', sans-serif;
+}
+
 code {
   display: block;
   margin: 20px 0 15px 0;

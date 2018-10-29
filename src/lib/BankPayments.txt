@@ -1,0 +1,26 @@
+{
+	"payments":
+	[
+		{"value":"33.00","iban":"NL52BUNQ2025415389","description":"Test1","created":"2018-02-24 22:06:37.665862"},
+		{"value":"-11.00","iban":"NL89BUNQ2025105584","description":"invoice 404343","created":"2018-02-24 11:29:42.589015"},
+		{"value":"-11.10","iban":"NL89BUNQ2025105584","description":"invoice 369586","created":"2018-01-24 11:58:27.311212"},
+		{"value":"11.00","iban":"NL52BUNQ2025415389","description":"","created":"2018-01-19 08:43:23.955147"},
+		{"value":"10.00","iban":"NL52BUNQ2025415389","description":"","created":"2018-01-19 08:42:39.661236"},
+		{"value":"-11.00","iban":"NL89BUNQ2025105584","description":"invoice 336286","created":"2017-12-24 11:25:38.745720"},
+		{"value":"-11.05","iban":"NL89BUNQ2025105584","description":"invoice 299031","created":"2017-11-24 11:24:35.580475"},
+		{"value":"20.00","iban":"NL52BUNQ2025415389","description":"","created":"2017-11-15 11:46:16.043665"},
+		{"value":"-11.05","iban":"NL89BUNQ2025105584","description":"invoice 265920","created":"2017-10-24 11:25:23.083768"},
+		{"value":"10.00","iban":"NL10BUNQ2291424483","description":"Thanks for the Bunq API wrapper.","created":"2017-09-25 09:20:30.353753"},
+		{"value":"0.41","iban":"NL52BUNQ2025415389","description":"Test8","created":"2017-06-07 23:05:44.158521"},
+		{"value":"0.37","iban":"NL52BUNQ2025415389","description":"Test7","created":"2017-06-07 22:56:59.732444"},
+		{"value":"0.66","iban":"NL52BUNQ2025415389","description":"Test6","created":"2017-06-02 13:18:07.358602"},
+		{"value":"0.51","iban":"NL52BUNQ2025415389","description":"Test5","created":"2017-05-31 10:19:01.116665"},
+		{"value":"0.44","iban":"NL52BUNQ2025415389","description":"Test4","created":"2017-05-30 11:33:24.809969"},
+		{"value":"0.34","iban":"NL52BUNQ2025415389","description":"Test3","created":"2017-05-30 11:29:45.218635"},
+		{"value":"-21.17","iban":"NL89BUNQ2025105584","description":"invoice 123576","created":"2017-05-24 14:09:22.968103"},
+		{"value":"0.11","iban":"NL52BUNQ2025415389","description":"Callbacktest2","created":"2017-05-24 10:35:38.071593"},
+		{"value":"0.42","iban":"NL52BUNQ2025415389","description":"Call back 1","created":"2017-05-23 20:54:34.010468"},
+		{"value":"-0.33","iban":"NL11INGB0687577241","description":"15JWLB5m9qGNxvt8tHJ","created":"2017-05-18 22:30:49.179757"}
+	],
+	"sum":"19.56"
+}

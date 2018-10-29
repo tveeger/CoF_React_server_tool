@@ -34,12 +34,18 @@ class SendEth extends Component {
 	this.state = {
 		recipient: '0x37779Fb61a1d24bEE94Ca8fd2268Eb0ed72d9dB5',
 		ethBalance: '0',
+		tokenAddress: '0x492b5F5Eb71c56df81A0E92DAC653d3f0Bdfb896',
+		tokenBalance: null,
+		tokenCreatedStatusFromReceipt: true,
+		totalDetsSupply: '0',
 		ethAmount: '0.00001',
+		apiKey: '',
 		message: '',
 		incoming: '',
+		walletKey: '',
 		hasWallet: false,
 		isTransferSuccess: false,
-		walletObject: '',
+		walletObject: null,
 		provider: '',
 	};
 
@@ -60,6 +66,8 @@ class SendEth extends Component {
 		AsyncStorage.getItem("walletObject").then(walletObject => {
 			if (walletObject) {
 				this.setState(() => ({ walletObject: walletObject }));
+				this.setState(() => ({ walletAddress: JSON.parse(walletObject).address }));
+				this.setState(() => ({ apiKey: JSON.parse(walletObject).apiKey }));
 				self.getWalletInfo();
 			}
 		})
@@ -73,16 +81,13 @@ class SendEth extends Component {
 	getWalletInfo = async () => {
 		try {
 			const self = this;
-			const tokenAddress = "0x492b5F5Eb71c56df81A0E92DAC653d3f0Bdfb896";
 			const daNetwork = ethers.providers.networks.rinkeby;
-			const etherscanApiKey = "I1SAN6UTWZ644VM5X3GHEVWG1RD9ADFAHV";
-			//const walletAddress = "0xdF1f27cfb692E7A6a34739eC276a0A965C425b9b";
-			//self.setState({walletAddress: walletAddress});
+			const etherscanApiKey = self.state.apiKey;
 			const walletAddress = self.state.walletAddress;
-			self.setState({tokenAddress:tokenAddress});
+			const tokenAddress = self.state.tokenAddress;
 			let etherscanProvider = new ethers.providers.EtherscanProvider(daNetwork, etherscanApiKey);
 			self.setState({provider: etherscanProvider});
-			
+			//this.setState({message: 'provider: ' + etherscanProvider.toString()});
 			const contract = new ethers.Contract(tokenAddress, metacoin_artifacts, etherscanProvider);
 			contract.connect(etherscanProvider);
 
@@ -94,6 +99,9 @@ class SendEth extends Component {
 				//total DETs supply
 				contract.totalSupply().then(function(result){
 					self.setState({totalDetsSupply: result.toString()});
+				});
+				contract.getTokenCreatedStatusFromReceipt('test1').then(function(result){
+					self.setState({tokenCreatedStatusFromReceipt: result});
 				});
 			}
 
@@ -137,13 +145,12 @@ class SendEth extends Component {
 
 		let walletObj = JSON.parse(this.state.walletObject);
 		let privateKey = walletObj.privateKey;
-		//this.setState({message: privateKey});
 		let wallet = new Wallet(privateKey);
 		wallet.provider = this.state.provider;
-		//let provider = this.state.provider;
 		let ethAmount = this.state.ethAmount;
 		let toAddress = this.state.recipient;
 		let nonce = this.state.nonce;
+		const provider = this.state.provider;
 		
 		let transactionHash;
 		const transaction = {
@@ -156,30 +163,29 @@ class SendEth extends Component {
 			data: "0x",
 		};
 		let signedTransaction = wallet.sign(transaction);
-		//let parsedTransaction = ethers.Wallet.parseTransaction(signedTransaction);
-		//this.setState({message: 'signed: ' + signedTransaction});
+		this.setState({message: 'stage-1, signed OK ' + signedTransaction});
 		this.setState({isSigned: true});
-		wallet.provider.sendTransaction(signedTransaction).then(function(hash) {
+		provider.sendTransaction(signedTransaction).then(function(hash) {
 			transactionHash = hash;
-			wallet.provider.waitForTransaction(transactionHash).then(function(transaction) {
-				this.setState({message: "transaction has been send" + hash.toString()});
-				this.setState({isSigned: false});
-				this.setState({isTransferSuccess: true});
-				this.getWalletInfo();
-			});
+			this.setState({message: 'stage-2, send transaction: ' + hash});
 		});
-
+		provider.waitForTransaction(transactionHash).then(function(transaction) {
+			this.setState({message: "state=3, transaction has been send" + transaction.hash.toString()});
+			this.setState({isSigned: false});
+			this.setState({isTransferSuccess: true});
+			this.getWalletInfo();
+		});
 	}
 	
 	render() {
 		return (
 			<Paper style={styles.paper} zDepth={3} >
 				<div style={styles.paper_content}>
-				<h3 className="frente">Send Ether</h3>
-				<br/>
+					<h3 className="frente">Send Ether</h3>
+					<br/>
 					<p></p>
 					{!this.state.hasWallet && <p><ReportProblem color={redA400}/> No wallet found</p>}
-					{this.state.hasWallet && <p>Balance: Ξ {this.state.ethBalance} (ETH), Network: {this.state.provider.name}, Nonce: {this.state.nonce}</p>}
+					{this.state.hasWallet && <p>Balance: Ξ {this.state.ethBalance} (ETH){this.state.tokenBalance}, Network: {this.state.provider.name}, Nonce: {this.state.nonce}</p>}
 					<Form inline={false} onSubmit={this.handleSubmit}>
 						{this.state.hasWallet && <Input ref="recipient" type="text" placeholder="42 character Ethereum address" label="Recipient" value={this.state.recipient} onChange={this.handleInputChangeRecipient} required={true} />}
 						{this.state.hasWallet && <Input ref="detsAmount" type="text" label="Ether Amount" value={this.state.detsAmount} onChange={this.handleInputChangeEthAmount} required={true} />}<br/>

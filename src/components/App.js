@@ -9,6 +9,7 @@ import MyBottomNavigation from './materialUI/MyBottomNavigation.js';
 import Home from './Home.js';
 import CreateWallet from './CreateWallet.js';
 import RecoverWallet from './RecoverWallet.js';
+import CreatePublicKey from './CreatePublicKey.js'
 //import Preferences from './Preferences.js';
 
 import LogoImageSmall from '../img/beeldmerk_30x32_darkblue.png';
@@ -22,6 +23,7 @@ import AssignmentIndIcon from 'material-ui/svg-icons/action/assignment-ind';
 import PeopleIcon from 'material-ui/svg-icons/social/people';
 import HomeIcon from 'material-ui/svg-icons/action/home';
 import WalletIcon	from 'material-ui/svg-icons/action/account-balance-wallet';
+import LockIcon	from 'material-ui/svg-icons/action/lock';
 
 const styles = {
 	title: {
@@ -42,6 +44,7 @@ class App extends Component {
 			showHome: true,
 			showRecoverWallet: false,
 			showCreateWallet: false,
+			showPublicKey: false,
 			showPrefs: false,
 			walletAddress: '',
 			newTestme: 'its a test',
@@ -67,24 +70,27 @@ class App extends Component {
 		this.setState({
 			showCreateWallet: false,
 			showRecoverWallet: false,
+			showPublicKey: false,
 			showHome:true,
 			showPrefs: false
 		});
 	};
 
-/*	handlePrefs = (event, value) => {
+	handlePublicKey = (event, value) => {
 		this.setState({
 			showCreateWallet: false,
 			showRecoverWallet: false,
+			showPublicKey: true,
 			showHome:false,
-			showPrefs: true
+			showPrefs: false
 		});
-	};*/
+	};
 
 	handleCreateWallet = (event, value) => {
 		this.setState({
 			showCreateWallet: true,
 			showRecoverWallet: false,
+			showPublicKey: false,
 			showHome:false,
 			showPrefs: false
 		});
@@ -94,6 +100,7 @@ class App extends Component {
 		this.setState({
 			showCreateWallet: false,
 			showRecoverWallet: true,
+			showPublicKey: false,
 			showHome:false,
 			showPrefs: false
 		});
@@ -121,6 +128,7 @@ class App extends Component {
 							>
 							<MenuItem onClick={this.handleHome} value="2" primaryText="Home" leftIcon={<img src={LogoImageSmall}/>} />
 							<MenuItem onClick={this.handleRecoverWallet} value="5" primaryText="Wallet" leftIcon={<WalletIcon/>} />
+							<MenuItem onClick={this.handlePublicKey} value="5" primaryText="Public Key" leftIcon={<LockIcon/>} />
 						</IconMenu>
 					</AppBar>
 				</MuiThemeProvider>
@@ -133,6 +141,7 @@ class App extends Component {
 							{this.state.showHome ? <Home propFromParent={newTestme} /> : null}
 							{this.state.showCreateWallet ? <CreateWallet callbackFromParent={this.walletCallback.bind(this)} /> : null}
 							{this.state.showRecoverWallet ? <RecoverWallet callbackFromParent={this.walletCallback.bind(this)} callbackFromParent2={this.handleCreateWallet.bind(this)}  /> : null}
+							{this.state.showPublicKey ? <CreatePublicKey callbackFromParent={this.walletCallback.bind(this)}  /> : null}
 						{this.state.message}</div>
 					</MuiThemeProvider>
 				 </div>
