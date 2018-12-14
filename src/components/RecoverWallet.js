@@ -131,7 +131,7 @@ class RecoverWalletForm extends React.Component {
     return (
 		<Paper style={styles.paper} zDepth={3} >
 			<div style={styles.paper_content}>
-				<h3 className="frente">Recover your excisting wallet</h3>
+				<h3 className="frente">Recover your excisting wallet or create a new</h3>
 				<br/>
 				{this.state.hasWallet && <p>Current wallet address: {this.state.walletAddress}</p>}
 				<p style={styles.prompt}>Enter your mnemonic  in the field below.</p>				

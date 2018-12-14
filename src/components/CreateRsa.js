@@ -1,9 +1,8 @@
 import React from 'react';
 import ethers from 'ethers';
-//import {Crypt, keyManager, RSA} from 'hybrid-crypto-js';
-import VerifySignature from './VerifySignature.js';
-//import VerifySignature from './EthersSigningKey.js';
+//import NodeRSA from 'node-rsa'; //https://www.npmjs.com/package/node-rsa
 import AsyncStorage from '@callstack/async-storage';
+
 import Input from 'muicss/lib/react/input';
 import Button from 'muicss/lib/react/button';
 import Paper from 'material-ui/Paper';
@@ -25,14 +24,14 @@ const styles = {
 		display: 'inline-block',
 	},
 	prompt: {
-		color: '#BCB3A2'
+		color: '#2D4866'
 	},
 	header: {
-		color: '#2D4866'
+		color: '#BCB3A2'
 	}
 };
 
-class CreatePublicKey extends React.Component {
+class CreateRsa extends React.Component {
 	constructor(props) {
 		super(props);
 
@@ -49,6 +48,8 @@ class CreatePublicKey extends React.Component {
 			signature: null,
 			signingKey: '',
 			verifyAddress: '',
+			encryptedMessage: '',
+			decryptedMessage: '',
 		};
 	}
 
@@ -64,10 +65,9 @@ class CreatePublicKey extends React.Component {
 		AsyncStorage.getItem("walletObject").then(walletObject => {
 			if (walletObject) {
 				this.setState(() => ({ walletObject: walletObject }));
-				this.getSigningKey();
+				this.getWalletInfo();
 			}
 		});
-		
 		
 	}
 
@@ -76,14 +76,12 @@ class CreatePublicKey extends React.Component {
 		
 	}
 
-	getSigningKey = async () => {
+	getWalletInfo = async () => {
 		try {
 			const self = this;
-			AsyncStorage.getItem("signingKey").then(signingKey => {
-			if (signingKey) {
-				this.setState(() => ({ signingKey: signingKey }));                                                                                           
-				}
-			});
+			
+
+			
 		}
 		catch(error) {
 			this.setState({message: error});
@@ -93,31 +91,18 @@ class CreatePublicKey extends React.Component {
 	createPublicKey = async () => {
 		try {
 			const self = this;
-			const walletAddress = self.state.walletAddress;
-			const walletObj = JSON.parse(self.state.walletObject);
-			const wprivateKey = walletObj.privateKey;
-			const SigningKey = ethers._SigningKey;
-			const signingKey = new ethers.SigningKey(wprivateKey);
-			this.setState({signingKey: signingKey});
+			const key = new NodeRSA({b: 512});
+			const text = 'Hello RSA!';
+			const encrypted = key.encrypt(text, 'base64');
 			this.setState({hasSigningKey: true});
-			const publicKey = signingKey.publicKey;
-			this.setState({publicKey: publicKey});
-			AsyncStorage.setItem('signingKey', JSON.stringify(signingKey));		
+			console.log('encrypted: ', encrypted);
+			this.setState({encryptedMessage: encrypted});
+			const decrypted = key.decrypt(encrypted, 'utf8');
+			//console.log('decrypted: ', decrypted);
+			this.setState({decryptedMessage: decrypted});
 		}
 		catch(error) {
 			this.setState({message: error});
-		}
-	}
-
-	verifyAddress = () => {
-		try {
-			const self = this;
-			let publicKey = this.state.publicKey;
-			let verifyAddress = ethers.SigningKey.publicKeyToAddress(publicKey);
-			this.setState({verifyAddress: verifyAddress});
-		}
-		catch(error) {
-
 		}
 	}
 
@@ -155,28 +140,22 @@ class CreatePublicKey extends React.Component {
     return (
 		<Paper style={styles.paper} zDepth={3} >
 			<div style={styles.paper_content}>
-				<h3 className="frente">Create PublicKey</h3>
+				<h3 className="frente">Create RSA PublicKey</h3>
 				<br/>
 				<p>{this.state.message}</p>
-				<p style={styles.header}>Here you can create a new Key pair</p>				
-				{!this.state.hasWallet && <p style={styles.prompt}>Please create or recover your address first</p>}
+				<p style={styles.prompt}>Here you can create a new Key pair</p>				
+				{!this.state.hasWallet && <p>Please create or recover your address first</p>}
 				{this.state.hasWallet && <Button type="submit" onClick={() => this.createPublicKey()} color="primary" variant="raised">Create New Key Pair</Button>}
 				<br/>
 				{this.state.isBusy && <p>Just a sec... We are recovering the wallet info.</p>}
 				{this.state.hasSigningKey && <p>SigningKey Address: {this.state.signingKey.address}</p>}
 				{this.state.hasSigningKey && <p>Public Key: {this.state.publicKey}</p>}
-				<br/>
-				{this.state.hasSigningKey && <h3 className="frente">Verify address</h3>}
-				<br/>
-				{this.state.hasSigningKey && <p style={styles.prompt}>Verify the address of the signature</p>}
-				{this.state.hasSigningKey && <Button type="submit" onClick={() => this.verifyAddress()} color="primary" variant="raised">Verify</Button>}
-				{this.state.hasSigningKey && <p style={styles.prompt}>Verification: {this.state.verifyAddress}</p>}
+				{this.state.hasSigningKey && <p>Verification: {this.state.verifyAddress}</p>}
 			</div>
-			<VerifySignature/>
 		</Paper>
 
     );
   }
 };
 
-export default CreatePublicKey;
+export default CreateRsa;

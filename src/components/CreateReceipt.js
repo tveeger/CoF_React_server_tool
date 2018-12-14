@@ -189,6 +189,7 @@ class CreateReceipt extends Component {
 			let transactionHash;
 			let tokenAddress = self.state.tokenAddress;
 			let nonce = self.state.nonce;
+
 			var tx = {
 				from: walletAddress,
 				to: tokenAddress,
@@ -198,12 +199,14 @@ class CreateReceipt extends Component {
 				gasLimit: ethers.utils.bigNumberify(185000),
 				data: functionIface.data,
 			}
+
 			let signedTransaction = wallet.sign(tx);
 			self.setState({isSigned: true});
+			self.setState({message: 'stage-1, signed OK'});
 			wallet.provider.sendTransaction(signedTransaction).then(function(hash) {
 				transactionHash = hash;
 				wallet.provider.waitForTransaction(transactionHash).then(function(transaction) {
-					self.socket.send(signedTransaction); //TODO
+					//self.socket.send(signedTransaction); //TODO
 					self.setState({infoMessage: "Your receipt has been confirmed."});
 					self.setState({isSigned: false});
 					self.setState({isTransferSuccess: true});
@@ -234,6 +237,7 @@ class CreateReceipt extends Component {
 						{this.state.hasWallet && <Button type="submit" onClick={this.handleStoreReceipt} color="primary" variant="raised">Submit</Button>}
 					</Form>
 					<p>{this.state.message}</p>
+					<p>provider base url: {this.state.test}</p>
 					{this.state.isSigned && <p><Hourglass/> Signed receipt. Just wait a minute...</p>}
 					{this.state.isTransferSuccess && <p><FlightTakeoff/> {this.state.infoMessage}, hash: {this.state.hash} </p>}
 				</div>

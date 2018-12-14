@@ -9,7 +9,9 @@ import MyBottomNavigation from './materialUI/MyBottomNavigation.js';
 import Home from './Home.js';
 import CreateWallet from './CreateWallet.js';
 import RecoverWallet from './RecoverWallet.js';
-import CreatePublicKey from './CreatePublicKey.js'
+import CreatePublicKey from './CreatePublicKey.js';
+import MessagingForm from './MessagingForm.js';
+import SocketIoChat from './SocketIoChat.js';
 //import Preferences from './Preferences.js';
 
 import LogoImageSmall from '../img/beeldmerk_30x32_darkblue.png';
@@ -24,6 +26,7 @@ import PeopleIcon from 'material-ui/svg-icons/social/people';
 import HomeIcon from 'material-ui/svg-icons/action/home';
 import WalletIcon	from 'material-ui/svg-icons/action/account-balance-wallet';
 import LockIcon	from 'material-ui/svg-icons/action/lock';
+import Chat	from 'material-ui/svg-icons/action/speaker-notes';
 
 const styles = {
 	title: {
@@ -46,6 +49,8 @@ class App extends Component {
 			showCreateWallet: false,
 			showPublicKey: false,
 			showPrefs: false,
+			showMessagingForm: false,
+			showSocketIoChat: false,
 			walletAddress: '',
 			newTestme: 'its a test',
 		}
@@ -61,6 +66,8 @@ class App extends Component {
 			if (walletAddress) {
 				this.setState(() => ({ wallet: walletAddress }));
 				this.setState(() => ({ hasWallet: true }));
+			} else {
+				this.handleRecoverWallet();
 			}
 		})
 		
@@ -72,7 +79,9 @@ class App extends Component {
 			showRecoverWallet: false,
 			showPublicKey: false,
 			showHome:true,
-			showPrefs: false
+			showPrefs: false,
+			showMessagingForm: false,
+			showSocketIoChat:false
 		});
 	};
 
@@ -82,7 +91,9 @@ class App extends Component {
 			showRecoverWallet: false,
 			showPublicKey: true,
 			showHome:false,
-			showPrefs: false
+			showPrefs: false,
+			showMessagingForm: false,
+			showSocketIoChat:false
 		});
 	};
 
@@ -92,7 +103,9 @@ class App extends Component {
 			showRecoverWallet: false,
 			showPublicKey: false,
 			showHome:false,
-			showPrefs: false
+			showPrefs: false,
+			showMessagingForm: false,
+			showSocketIoChat:false
 		});
 	};
 
@@ -102,7 +115,33 @@ class App extends Component {
 			showRecoverWallet: true,
 			showPublicKey: false,
 			showHome:false,
-			showPrefs: false
+			showPrefs: false,
+			showMessagingForm: false,
+			showSocketIoChat:false
+		});
+	};
+
+	handleMesssagingForm = (event, value) => {
+		this.setState({
+			showCreateWallet: false,
+			showRecoverWallet: false,
+			showPublicKey: false,
+			showHome:false,
+			showPrefs: false,
+			showMessagingForm: true,
+			showSocketIoChat:false
+		});
+	};
+
+	handleSocketIoChat = (event, value) => {
+		this.setState({
+			showCreateWallet: false,
+			showRecoverWallet: false,
+			showPublicKey: false,
+			showHome:false,
+			showPrefs: false,
+			showMessagingForm: false,
+			showSocketIoChat:true
 		});
 	};
 
@@ -129,6 +168,8 @@ class App extends Component {
 							<MenuItem onClick={this.handleHome} value="2" primaryText="Home" leftIcon={<img src={LogoImageSmall}/>} />
 							<MenuItem onClick={this.handleRecoverWallet} value="5" primaryText="Wallet" leftIcon={<WalletIcon/>} />
 							<MenuItem onClick={this.handlePublicKey} value="5" primaryText="Public Key" leftIcon={<LockIcon/>} />
+							<MenuItem onClick={this.handleMesssagingForm} value="5" primaryText="Messaging" leftIcon={<Chat/>} />
+							<MenuItem onClick={this.handleSocketIoChat} value="5" primaryText="SocketIo" leftIcon={<Chat/>} />
 						</IconMenu>
 					</AppBar>
 				</MuiThemeProvider>
@@ -142,6 +183,8 @@ class App extends Component {
 							{this.state.showCreateWallet ? <CreateWallet callbackFromParent={this.walletCallback.bind(this)} /> : null}
 							{this.state.showRecoverWallet ? <RecoverWallet callbackFromParent={this.walletCallback.bind(this)} callbackFromParent2={this.handleCreateWallet.bind(this)}  /> : null}
 							{this.state.showPublicKey ? <CreatePublicKey callbackFromParent={this.walletCallback.bind(this)}  /> : null}
+							{this.state.showMessagingForm ? <MessagingForm callbackFromParent={this.walletCallback.bind(this)}  /> : null}
+							{this.state.showSocketIoChat ? <SocketIoChat callbackFromParent={this.walletCallback.bind(this)}  /> : null}
 						{this.state.message}</div>
 					</MuiThemeProvider>
 				 </div>

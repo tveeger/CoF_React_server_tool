@@ -142,7 +142,7 @@ class Payments extends React.Component {
 			
 			if(contract !== '') {
 				self.setState({contract: contract});
-				contract.getTokenCreatedStatusFromReceipt('test2').then(function(result){
+				contract.getTokenCreatedStatusFromReceipt('test2').then(function(result){ //TODO change receiptID
 					self.setState({tokenCreatedStatusFromReceipt: result});
 				});
 			}
@@ -248,7 +248,7 @@ class Payments extends React.Component {
 							<h4 className="frente">Amount</h4>
 						</div>
 						<div style={styles.column4}>
-							<h4 className="frente">Comment</h4>
+							<h4 className="frente">Receipt-ID</h4>
 						</div>
 						<div style={styles.column5}>
 							<h4 className="frente">Client Address</h4>
