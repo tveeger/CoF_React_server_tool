@@ -42,7 +42,7 @@ class SocketIoChat extends React.Component {
 		super(props)
 
 		this.state = {
-			message: '123',
+			message: '',
 			walletAddress: '',
 			hasWallet: false,
 			response: false,
@@ -53,10 +53,9 @@ class SocketIoChat extends React.Component {
       		posts: [],
       		socketId: '',
       		toSocketId: '',
+      		users: [],
 		}
 		this.componentWillMount = this.componentWillMount.bind(this);
-		//this.socket = socketIOClient(this.state.endpoint);
-		//this.newsSocket = socketIOClient(this.state.endpoint + "/news");
 		this.cofSocket = socketIOClient(this.state.endpoint + "/chat");
 
 		this.handleInputMessage = this.handleInputMessage.bind(this);
@@ -71,9 +70,8 @@ class SocketIoChat extends React.Component {
 			self.setState({socketId: self.cofSocket.id});
 		});
 		self.cofSocket.on('message', function(message) { self.incomingMessage(message) } );
-		self.cofSocket.on('users', function(message) { self.incomingMessage({data: message}) } );
+		self.cofSocket.on('users', function(user) { self.incomingUsers(user) } );
 		//let clients = self.cofSocket.of('/chat').clients();
-
 	}
 
 	componentWillUnmount() {
@@ -89,6 +87,18 @@ class SocketIoChat extends React.Component {
 		posts = this.state.posts.slice();
 		posts.push({position: 'left', type: 'text', text: msg.data, date: new Date(), 'id': postsAmount});
 		this.setState({ posts: posts });
+	}
+
+	incomingUsers(user) {
+		let users = this.state.users;
+		if (users !== null) {
+			users = this.state.users.slice();
+			users.push({userName: '', socketId: user});
+			this.setState({ users: users});
+		} else {
+			users.push({userName: '', socketId: user});
+			this.setState({ users: users});
+		}
 	}
 
 	handleInputMessage(event) {
@@ -123,6 +133,7 @@ class SocketIoChat extends React.Component {
 					<Input ref="inputMessssage" type="text" label="Your message" value={this.state.inputMessssage} onChange={this.handleInputMessage} required={true} />
 					<Button type="submit" onClick={() => this.sendMessage2client()} color="primary" variant="raised">Submit to Client</Button>
 					<p>{this.state.message}</p>
+					<p>users: {this.state.users}</p>
 					<div style={styles.paper_chat}>
 						<MessageList
 							className='message-list'
