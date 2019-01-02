@@ -1,8 +1,8 @@
 import React from 'react';
 import ethers from 'ethers';
-//import NodeRSA from 'node-rsa'; //https://www.npmjs.com/package/node-rsa
+import NodeRSA from 'node-rsa'; //https://www.npmjs.com/package/node-rsa
 import AsyncStorage from '@callstack/async-storage';
-
+import DecryptRsa from './DecryptRsa.js';
 import Input from 'muicss/lib/react/input';
 import Button from 'muicss/lib/react/button';
 import Paper from 'material-ui/Paper';
@@ -28,7 +28,10 @@ const styles = {
 	},
 	header: {
 		color: '#BCB3A2'
-	}
+	},
+	prompt: {
+		color: '#BCB3A2'
+	},
 };
 
 class CreateRsa extends React.Component {
@@ -38,16 +41,13 @@ class CreateRsa extends React.Component {
 		this.state = {
 			submitMessage: '',
 			walletAddress: '',
-			walletObject: null,
-			signingKeyAddress: '',
 			message: '',
 			hasWallet: false,
 			hasSigningKey: false,
 			isBusy: false,
+			key: null,
 			publicKey: '',
-			signature: null,
-			signingKey: '',
-			verifyAddress: '',
+			privateKey: '',
 			encryptedMessage: '',
 			decryptedMessage: '',
 		};
@@ -58,16 +58,8 @@ class CreateRsa extends React.Component {
 			if (walletAddress) {
 				this.setState(() => ({ walletAddress: walletAddress }));
 				this.setState(() => ({ hasWallet: true }));
-
 			}
-		});
-
-		AsyncStorage.getItem("walletObject").then(walletObject => {
-			if (walletObject) {
-				this.setState(() => ({ walletObject: walletObject }));
-				this.getWalletInfo();
-			}
-		});
+		});			
 		
 	}
 
@@ -76,62 +68,23 @@ class CreateRsa extends React.Component {
 		
 	}
 
-	getWalletInfo = async () => {
+	createNewPublicKey = async () => {
 		try {
-			const self = this;
-			
-
-			
+			const key = new NodeRSA()
+			key.generateKeyPair(2048, 65537);
+			//const key = new NodeRSA({b: 512});
+			if(!key.isEmpty()) {
+				//key.generateKeyPair(4096); //4096
+				//key.setOptions({encryptionScheme: 'pkcs1'}); //https://stackoverflow.com/questions/33837617/node-rsa-errors-when-trying-to-decrypt-message-with-private-key
+				let maxKeySize = key.getMaxMessageSize(); //512: 22 bytes
+				const publicKey = key.exportKey('pkcs8-public-pem');
+				this.setState({publicKey: publicKey});
+				const privateKey = key.exportKey('pkcs8-private-pem');
+				this.setState({privateKey: privateKey});
+			}
 		}
 		catch(error) {
 			this.setState({message: error});
-		}
-	}
-
-	createPublicKey = async () => {
-		try {
-			const self = this;
-			const key = new NodeRSA({b: 512});
-			const text = 'Hello RSA!';
-			const encrypted = key.encrypt(text, 'base64');
-			this.setState({hasSigningKey: true});
-			console.log('encrypted: ', encrypted);
-			this.setState({encryptedMessage: encrypted});
-			const decrypted = key.decrypt(encrypted, 'utf8');
-			//console.log('decrypted: ', decrypted);
-			this.setState({decryptedMessage: decrypted});
-		}
-		catch(error) {
-			this.setState({message: error});
-		}
-	}
-
-	submitCreate = () => {
-		try {
-			const self = this;
-
-		}
-		catch(error) {
-
-		}
-	}
-
-	passTheWalletAddress = () => {
-		try {
-			this.props.callbackFromParent(this.state.walletAddress);
-
-		}
-		catch(error) {
-
-		}
-	}
-
-	passTheRoute = () => {
-		try {
-			this.props.callbackFromParent2(4);
-		}
-		catch(error) {
-
 		}
 	}
 
@@ -139,18 +92,16 @@ class CreateRsa extends React.Component {
   	//let walletData = this.passTheInfo;
     return (
 		<Paper style={styles.paper} zDepth={3} >
+			<DecryptRsa/>
 			<div style={styles.paper_content}>
 				<h3 className="frente">Create RSA PublicKey</h3>
-				<br/>
 				<p>{this.state.message}</p>
-				<p style={styles.prompt}>Here you can create a new Key pair</p>				
-				{!this.state.hasWallet && <p>Please create or recover your address first</p>}
-				{this.state.hasWallet && <Button type="submit" onClick={() => this.createPublicKey()} color="primary" variant="raised">Create New Key Pair</Button>}
-				<br/>
+				{this.state.hasWallet && <p style={styles.prompt}>Here you can create a new Key pair</p>}			
+				{!this.state.hasWallet && <p style={styles.prompt}>Please create or recover your address first</p>}
+				{this.state.hasWallet && <Button type="submit" onClick={() => this.createNewPublicKey()} color="primary" variant="raised">Create New Key Pair</Button>}
 				{this.state.isBusy && <p>Just a sec... We are recovering the wallet info.</p>}
-				{this.state.hasSigningKey && <p>SigningKey Address: {this.state.signingKey.address}</p>}
 				{this.state.hasSigningKey && <p>Public Key: {this.state.publicKey}</p>}
-				{this.state.hasSigningKey && <p>Verification: {this.state.verifyAddress}</p>}
+				{this.state.hasSigningKey && <p style={styles.prompt}>Private Key: {this.state.privateKey}</p>}
 			</div>
 		</Paper>
 

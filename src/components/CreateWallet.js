@@ -4,7 +4,6 @@ import AsyncStorage from '@callstack/async-storage';
 import Button from 'muicss/lib/react/button';
 import Divider from 'muicss/lib/react/divider';
 import Paper from 'material-ui/Paper';
-import {redA400} from 'material-ui/styles/colors';
 
 const styles = {
 	paper_content: {

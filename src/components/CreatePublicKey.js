@@ -4,11 +4,9 @@ import ethers from 'ethers';
 import VerifySignature from './VerifySignature.js';
 //import VerifySignature from './EthersSigningKey.js';
 import AsyncStorage from '@callstack/async-storage';
-import Input from 'muicss/lib/react/input';
 import Button from 'muicss/lib/react/button';
 import Paper from 'material-ui/Paper';
 
-let wallet = '';
 
 const styles = {
 	paper_content: {
@@ -81,7 +79,7 @@ class CreatePublicKey extends React.Component {
 			const self = this;
 			AsyncStorage.getItem("signingKey").then(signingKey => {
 			if (signingKey) {
-				this.setState(() => ({ signingKey: signingKey }));                                                                                           
+				self.setState(() => ({ signingKey: signingKey }));                                                                                           
 				}
 			});
 		}
@@ -93,7 +91,6 @@ class CreatePublicKey extends React.Component {
 	createPublicKey = async () => {
 		try {
 			const self = this;
-			const walletAddress = self.state.walletAddress;
 			const walletObj = JSON.parse(self.state.walletObject);
 			const wprivateKey = walletObj.privateKey;
 			const SigningKey = ethers._SigningKey;
@@ -112,19 +109,9 @@ class CreatePublicKey extends React.Component {
 	verifyAddress = () => {
 		try {
 			const self = this;
-			let publicKey = this.state.publicKey;
+			let publicKey = self.state.publicKey;
 			let verifyAddress = ethers.SigningKey.publicKeyToAddress(publicKey);
-			this.setState({verifyAddress: verifyAddress});
-		}
-		catch(error) {
-
-		}
-	}
-
-	submitCreate = () => {
-		try {
-			const self = this;
-
+			self.setState({verifyAddress: verifyAddress});
 		}
 		catch(error) {
 
@@ -155,7 +142,7 @@ class CreatePublicKey extends React.Component {
     return (
 		<Paper style={styles.paper} zDepth={3} >
 			<div style={styles.paper_content}>
-				<h3 className="frente">Create PublicKey</h3>
+				<h3 className="frente">Create Ethers.js Public Key</h3>
 				<br/>
 				<p>{this.state.message}</p>
 				<p style={styles.header}>Here you can create a new Key pair</p>				
@@ -163,7 +150,6 @@ class CreatePublicKey extends React.Component {
 				{this.state.hasWallet && <Button type="submit" onClick={() => this.createPublicKey()} color="primary" variant="raised">Create New Key Pair</Button>}
 				<br/>
 				{this.state.isBusy && <p>Just a sec... We are recovering the wallet info.</p>}
-				{this.state.hasSigningKey && <p>SigningKey Address: {this.state.signingKey.address}</p>}
 				{this.state.hasSigningKey && <p>Public Key: {this.state.publicKey}</p>}
 				<br/>
 				{this.state.hasSigningKey && <h3 className="frente">Verify address</h3>}

@@ -141,7 +141,7 @@ class SendEth extends Component {
 	handleSubmit(e) {
 		e.preventDefault();
 		const Wallet = ethers.Wallet;
-		const walletAddress = this.state.walletAddress;
+		//const walletAddress = this.state.walletAddress;
 
 		let walletObj = JSON.parse(this.state.walletObject);
 		let privateKey = walletObj.privateKey;

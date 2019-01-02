@@ -8,7 +8,7 @@ import Input from 'muicss/lib/react/input';
 import Paper from 'material-ui/Paper';
 import FlightTakeoff from 'material-ui/svg-icons/action/flight-takeoff';
 import Hourglass from 'material-ui/svg-icons/action/hourglass-empty';
-import Receipt from 'material-ui/svg-icons/action/receipt';
+//import Receipt from 'material-ui/svg-icons/action/receipt';
 import ReportProblem from 'material-ui/svg-icons/action/report-problem';
 import {redA400} from 'material-ui/styles/colors';
 

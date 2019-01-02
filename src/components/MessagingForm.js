@@ -1,13 +1,13 @@
 import React from 'react';
-import ethers from 'ethers';
+//import ethers from 'ethers';
 import AsyncStorage from '@callstack/async-storage';
 import Button from 'muicss/lib/react/button';
 import Divider from 'muicss/lib/react/divider';
 import Paper from 'material-ui/Paper';
-import {redA400} from 'material-ui/styles/colors';
+//import {redA400} from 'material-ui/styles/colors';
 import Input from 'muicss/lib/react/input';
 import 'react-chat-elements/dist/main.css';
-import { MessageBox, ChatItem, MessageList } from 'react-chat-elements';
+import { MessageList } from 'react-chat-elements';
 //https://reactnativeexample.com/reactjs-chat-elements-chat-ui/
 //npm install ws https://github.com/websockets/ws
 //import WebSocket from 'ws';
@@ -101,9 +101,9 @@ class MessagingForm extends React.Component {
 		var self = this;
 		AsyncStorage.getItem("walletAddress").then(walletAddress => {
 			if (walletAddress) {
-				let posts = this.state.posts;
-				this.setState(() => ({ walletAddress: walletAddress }));
-				this.setState(() => ({ hasWallet: true }));
+				//let posts = self.state.posts;
+				self.setState(() => ({ walletAddress: walletAddress }));
+				self.setState(() => ({ hasWallet: true }));
 				//this.setState(() => ({ posts: [{position: 'left', type: 'text', text: 'Write your message', date: new Date()}] }))
 			}
 		});

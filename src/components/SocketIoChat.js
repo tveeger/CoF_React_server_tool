@@ -1,15 +1,13 @@
+//https://itnext.io/building-a-node-js-websocket-chat-app-with-socket-io-and-react-473a0686d1e1
 import React from 'react';
-import ethers from 'ethers';
-import AsyncStorage from '@callstack/async-storage';
 import Paper from 'material-ui/Paper';
 import Input from 'muicss/lib/react/input';
 import Button from 'muicss/lib/react/button';
 import socketIOClient from 'socket.io-client';
-import { MessageBox, ChatItem, MessageList } from 'react-chat-elements';
-
-//https://itnext.io/building-a-node-js-websocket-chat-app-with-socket-io-and-react-473a0686d1e1
-//import server from 'http' ;
-//import io from 'socket.io';
+import { MessageList } from 'react-chat-elements';
+import 'react-chat-elements/dist/main.css';
+import Option from 'muicss/lib/react/option';
+import Select from 'muicss/lib/react/select';
 
 const styles = {
 	paper_content: {
@@ -46,22 +44,29 @@ class SocketIoChat extends React.Component {
 			walletAddress: '',
 			hasWallet: false,
 			response: false,
-      		endpoint: "http://localhost:8000",
+      		endpoint: "http://45.32.186.169:28475", // http://45.32.186.169:28475 192.168.1.9:28475,
       		incomingMessage: '',
       		inputMessssage: '',
       		inputSocketId: '',
       		posts: [],
       		socketId: '',
       		toSocketId: '',
-      		users: [],
+      		onlineUsers: [],
+      		hasOnlineUsers: false,
+      		hasNickname: false,
+      		myNickname: '',
+      		room: '',
 		}
-		this.componentWillMount = this.componentWillMount.bind(this);
+		
 		this.cofSocket = socketIOClient(this.state.endpoint + "/chat");
 
+		this.componentWillMount = this.componentWillMount.bind(this);
 		this.handleInputMessage = this.handleInputMessage.bind(this);
 		this.incomingMessage = this.incomingMessage.bind(this);
 		this.handleToSocketId = this.handleToSocketId.bind(this);
 		this.sendMessage2client = this.sendMessage2client.bind(this);
+		this.registerUser = this.registerUser.bind(this);
+		this.setNickname = this.setNickname.bind(this);
 	}
 
 	componentWillMount() {
@@ -70,13 +75,14 @@ class SocketIoChat extends React.Component {
 			self.setState({socketId: self.cofSocket.id});
 		});
 		self.cofSocket.on('message', function(message) { self.incomingMessage(message) } );
-		self.cofSocket.on('users', function(user) { self.incomingUsers(user) } );
-		//let clients = self.cofSocket.of('/chat').clients();
+		self.cofSocket.on('users', function(users) { self.setState({onlineUsers: JSON.stringify(users)}) } );
+		self.cofSocket.on('room', function(msg) { self.setState({room: msg}) } );
 	}
 
 	componentWillUnmount() {
 		var self = this;
-		self.cofSocket.on('disconnect', true);
+		self.cofSocket.emit('disconnect', this.state.myNickname);
+		self.setState({hasNickname: false});
 	}
 
 	incomingMessage(msg) {
@@ -89,16 +95,15 @@ class SocketIoChat extends React.Component {
 		this.setState({ posts: posts });
 	}
 
-	incomingUsers(user) {
-		let users = this.state.users;
-		if (users !== null) {
-			users = this.state.users.slice();
-			users.push({userName: '', socketId: user});
-			this.setState({ users: users});
-		} else {
-			users.push({userName: '', socketId: user});
-			this.setState({ users: users});
-		}
+	setNickname(event) {
+		this.setState({myNickname: event.target.value});
+	}
+
+	registerUser() {
+		const self = this;
+		self.setState({hasNickname: true});
+		let myNickname = self.state.myNickname;
+		self.cofSocket.emit('users', {'username': myNickname, 'id': self.state.socketId});
 	}
 
 	handleInputMessage(event) {
@@ -119,7 +124,7 @@ class SocketIoChat extends React.Component {
 		posts = this.state.posts.slice();
 		posts.push({position: 'right', type: 'text', text: inputMessssage, date: new Date(), 'id': postsAmount});
 		this.setState({ posts: posts });
-		//this.setState({inputMessssage: ''});
+		this.setState({inputMessssage: ''});
 	}
 
 	render() {
@@ -128,12 +133,14 @@ class SocketIoChat extends React.Component {
 				<div style={styles.paper_content}>
 					<h3 className="frente">Socket.io Chat</h3>
 					<br/>
-					<p>ID: {this.state.socketId}</p>
-					<Input ref="inputSocketId" type="text" label="Client ID" value={this.state.inputSocketId} onChange={this.handleToSocketId} required={false} />
-					<Input ref="inputMessssage" type="text" label="Your message" value={this.state.inputMessssage} onChange={this.handleInputMessage} required={true} />
-					<Button type="submit" onClick={() => this.sendMessage2client()} color="primary" variant="raised">Submit to Client</Button>
-					<p>{this.state.message}</p>
-					<p>users: {this.state.users}</p>
+					{!this.state.hasNickname && <Input ref="myNickname" type="text" value={this.state.myNickname} label="Nickname" onChange={this.setNickname} required={false} />}
+					{!this.state.hasNickname && <Button type="submit" onClick={() => this.registerUser()} color="primary" variant="raised">Register me</Button>}
+					{this.state.hasNickname && <Input ref="inputSocketId" type="text" label="Client ID" value={this.state.inputSocketId} onChange={this.handleToSocketId} required={false} />}
+
+					{this.state.hasNickname && <Input ref="inputMessssage" type="text" label="Your message" value={this.state.inputMessssage} onChange={this.handleInputMessage} required={true} />}
+					{this.state.hasNickname && <Button type="submit" onClick={() => this.sendMessage2client()} color="primary" variant="raised">Submit to Client</Button>}
+					<p>{this.state.room} {this.state.message} </p>
+					<p>Users: {this.state.onlineUsers}</p>
 					<div style={styles.paper_chat}>
 						<MessageList
 							className='message-list'

@@ -4,7 +4,6 @@ import AsyncStorage from '@callstack/async-storage';
 import metacoin_artifacts from '../contracts/EntboxContract.json';
 import Paper from 'material-ui/Paper';
 import ReportProblem from 'material-ui/svg-icons/action/report-problem';
-import Forward from 'material-ui/svg-icons/content/forward';
 import Receipt from 'material-ui/svg-icons/action/receipt';
 import Hourglass from 'material-ui/svg-icons/action/hourglass-empty';
 import Button from 'muicss/lib/react/button';
@@ -234,8 +233,8 @@ class Payments extends React.Component {
 				<div style={styles.paper_content}>
 					<h3 className="frente">Client Payments</h3>
 					<br/>
-					<p>You can create a receipt by clicking on the icon next to the address. If the client receives the receipt, he can accumulate an equivalent amount of DET-tokens.</p>
-					{this.state.hasPayments && <p>Bank transactions: {this.state.txAmt}, Nonce: {this.state.nonce}, Balance: Ξ {this.state.ethBalance}</p>}
+					<p style={styles.prompt}>You can create a receipt by clicking on the icon next to the address. If the client receives the receipt, he can accumulate an equivalent amount of DET-tokens.</p>
+					{this.state.hasPayments && <p style={styles.prompt}>Bank transactions: {this.state.txAmt}, Nonce: {this.state.nonce}, Balance: Ξ {this.state.ethBalance}</p>}
 					{!this.state.hasWallet && <p><ReportProblem color={redA400}/> No wallet found</p>}
 					<div style={styles.row}>
 						<div style={styles.column1}>
@@ -283,7 +282,7 @@ class Payments extends React.Component {
 					)}
 					<div>&nbsp;</div>
 					<div>&nbsp;</div>
-					<p>{this.state.message}tcrea: {this.state.tokenCreatedStatusFromReceipt.toString()}</p>
+					<p>{this.state.message}</p>
 					{this.state.isSigned && <p><Hourglass/> Signed receipt. Just wait a minute...</p>}
 					{this.state.isTransferSuccess && <p><FlightTakeoff/> {this.state.infoMessage}, hash: {this.state.hash} </p>}
 				</div>
@@ -339,7 +338,10 @@ const styles = {
 		float: 'left',
 		width: '11%',
 		overflow: 'hidden',
-	}
+	},
+	prompt: {
+		color: '#BCB3A2'
+	},
 };
 
 export default Payments
