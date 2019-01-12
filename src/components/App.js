@@ -9,7 +9,8 @@ import MyBottomNavigation from './materialUI/MyBottomNavigation.js';
 import Home from './Home.js';
 import CreateWallet from './CreateWallet.js';
 import RecoverWallet from './RecoverWallet.js';
-import CreatePublicKey from './CreatePublicKey.js';
+//import CreatePublicKey from './CreatePublicKey.js';
+import VerifySignature from './VerifySignature.js';
 //import MessagingForm from './MessagingForm.js';
 import Encryption from './CreateRsa.js';
 import SocketIoChat from './SocketIoChat.js';
@@ -55,8 +56,6 @@ class App extends Component {
 			showEncryption: false,
 			walletAddress: '',
 		}
-
-	
 	}
 
 	componentWillMount() {
@@ -181,7 +180,7 @@ class App extends Component {
 							{this.state.showHome ? <Home propFromParent={walletAddress} /> : null}
 							{this.state.showCreateWallet ? <CreateWallet callbackFromParent={this.walletCallback.bind(this)} /> : null}
 							{this.state.showRecoverWallet ? <RecoverWallet callbackFromParent={this.walletCallback.bind(this)} callbackFromParent2={this.handleCreateWallet.bind(this)}  /> : null}
-							{this.state.showPublicKey ? <CreatePublicKey callbackFromParent={this.walletCallback.bind(this)}  /> : null}
+							{this.state.showPublicKey ? <VerifySignature callbackFromParent={this.walletCallback.bind(this)}  /> : null}
 							{this.state.showEncryption ? <Encryption callbackFromParent={this.walletCallback.bind(this)}  /> : null}
 							{this.state.showSocketIoChat ? <SocketIoChat callbackFromParent={this.walletCallback.bind(this)}  /> : null}
 						{this.state.message}</div>

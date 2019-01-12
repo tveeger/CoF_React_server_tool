@@ -32,7 +32,10 @@ const styles = {
 	},
 	logoSpace: {
 		textAlign: 'center',
-	}
+	},
+	prompt: {
+		color: '#BCB3A2'
+	},
 };
 
 class SocketIoChat extends React.Component {
@@ -44,7 +47,7 @@ class SocketIoChat extends React.Component {
 			walletAddress: '',
 			hasWallet: false,
 			response: false,
-      		endpoint: "http://45.32.186.169:28475", // http://45.32.186.169:28475 192.168.1.9:28475,
+      		endpoint: "http://45.32.186.169:28475", // http://192.168.1.9:28475,
       		incomingMessage: '',
       		inputMessssage: '',
       		inputSocketId: '',
@@ -133,14 +136,14 @@ class SocketIoChat extends React.Component {
 				<div style={styles.paper_content}>
 					<h3 className="frente">Socket.io Chat</h3>
 					<br/>
+					{this.state.hasNickname && <div style={styles.prompt}>online: {this.state.socketId}</div>}
 					{!this.state.hasNickname && <Input ref="myNickname" type="text" value={this.state.myNickname} label="Nickname" onChange={this.setNickname} required={false} />}
 					{!this.state.hasNickname && <Button type="submit" onClick={() => this.registerUser()} color="primary" variant="raised">Register me</Button>}
 					{this.state.hasNickname && <Input ref="inputSocketId" type="text" label="Client ID" value={this.state.inputSocketId} onChange={this.handleToSocketId} required={false} />}
-
 					{this.state.hasNickname && <Input ref="inputMessssage" type="text" label="Your message" value={this.state.inputMessssage} onChange={this.handleInputMessage} required={true} />}
 					{this.state.hasNickname && <Button type="submit" onClick={() => this.sendMessage2client()} color="primary" variant="raised">Submit to Client</Button>}
-					<p>{this.state.room} {this.state.message} </p>
-					<p>Users: {this.state.onlineUsers}</p>
+					<p style={styles.prompt}>{this.state.room} {this.state.message} </p>
+					<p style={styles.prompt}>Users: {this.state.onlineUsers}</p>
 					<div style={styles.paper_chat}>
 						<MessageList
 							className='message-list'

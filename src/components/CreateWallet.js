@@ -55,7 +55,10 @@ class CreateWalletForm extends React.Component {
 			savedMnemonic: '',
 			message: '',
 			hasWallet: false,
+			signingKey: '',
+			signatureSaved: false,
 		};
+		this.wallet = null;
 	}
 
 	componentWillMount() {
@@ -67,6 +70,19 @@ class CreateWalletForm extends React.Component {
 		this.setState({mnemonicList: ''});	
 		this.setState({mnemonicCreated: false});
 		this.setState({walletSaved: false});
+		this.setState({signatureSaved: false});
+	}
+
+	generateEthersSignature = async (privateKey) => {
+		let hasSigningKey = this.state.signingKey;
+		const SigningKey = ethers._SigningKey;
+		let signingKey = new ethers.SigningKey(privateKey);
+		let message = 'Chains of Freedom';
+		let messageBytes = ethers.utils.toUtf8Bytes(message);
+		let messageDigest = ethers.utils.keccak256(messageBytes);
+		let signature = signingKey.signDigest(messageDigest);
+		AsyncStorage.setItem('myEthersSignature', JSON.stringify(signature));
+		this.setState({signatureSaved: true});
 	}
 
 	getMnemonic = async () => {
@@ -91,7 +107,6 @@ class CreateWalletForm extends React.Component {
 	}
 
 	saveMnemonicWallet() {
-		//self = this;
 		let wallet = '';
 		this.setState({isBusy: true});
 		let newMnemonic =  this.state.mnemonic;
@@ -103,12 +118,17 @@ class CreateWalletForm extends React.Component {
 			let etherscanProvider = new ethers.providers.EtherscanProvider(daNetwork, etherscanApiKey);
 			wallet = ethers.Wallet.fromMnemonic(newMnemonic);
 			wallet.provider = etherscanProvider;
-			//AsyncStorage.setItem('mnemonic', newMnemonic);
 			AsyncStorage.setItem('walletAddress', wallet.address);
-			AsyncStorage.setItem('walletPk', wallet.privateKey);
+			let walletObject = {
+				address: wallet.address,
+				privateKey: wallet.privateKey,
+				provider: wallet.provider
+			}
+			AsyncStorage.setItem('walletObject', JSON.stringify(walletObject));
 			this.setState({walletAddress: wallet.address});
 			this.setState({walletSaved: true});
 			this.setState({isBusy: false});
+			this.generateEthersSignature(wallet.privateKey);
 		} else {
 			this.setState({message: "Could not save " + newMnemonic});
 		}
@@ -128,6 +148,7 @@ class CreateWalletForm extends React.Component {
 				{this.state.mnemonicCreated && <Button type="button" onClick={() => this.saveMnemonicWallet()} color="primary" variant="raised">Save new Wallet</Button>}
 				{this.state.isBusy && <p>Just a minute. Your transaction is being mined</p>}
 				<p>{this.state.message}<br/>WalletAddress: {this.state.walletAddress}</p>
+				{this.state.signatureSaved && <p style={styles.prompt}>Signature is saved</p>}
 			</div>
 		</Paper>
 

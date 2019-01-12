@@ -42,6 +42,7 @@ class RecoverWalletForm extends React.Component {
 			isBusy: false,
 			etherscanLink: '',
 		};
+		this.wallet = null;
 	}
 
 	componentWillMount() {
@@ -67,6 +68,18 @@ class RecoverWalletForm extends React.Component {
 		})
 	}
 
+	/*generateEthersSignature = async (privateKey) => {
+		let hasSigningKey = this.state.signingKey;
+		const SigningKey = ethers._SigningKey;
+		let signingKey = new ethers.SigningKey(privateKey);
+		let message = 'Chains of Freedom';
+		let messageBytes = ethers.utils.toUtf8Bytes(message);
+		let messageDigest = ethers.utils.keccak256(messageBytes);
+		let signature = signingKey.signDigest(messageDigest);
+		AsyncStorage.setItem('myEthersSignature', JSON.stringify(signature));
+		this.setState({signatureSaved: true});
+	}*/
+
 	submitMnemonic(ev) {
 		//ev.preventDefault();
 		let thisMnemonic = this.input.controlEl.value;
@@ -90,7 +103,6 @@ class RecoverWalletForm extends React.Component {
 
 			AsyncStorage.setItem('walletAddress', wallet.address)
 			.then(() => { 
-				this.setState({message: "we have a recovered address"}); 
 				this.setState({isBusy: false});
 			})
 			.catch(() => { this.setState({message: "Something went wrong!!!"});});
@@ -100,6 +112,9 @@ class RecoverWalletForm extends React.Component {
 				this.setState({walletSaved: true});
 				this.setState({etherscanLink: "https://rinkeby.etherscan.io/address/" + walletObject.address});
 				this.passTheWalletAddress();
+			})
+			.then(() => {
+				this.input.controlEl.value = '';
 			});
 			
 		} else {
@@ -110,7 +125,6 @@ class RecoverWalletForm extends React.Component {
 	passTheWalletAddress = () => {
 		try {
 			this.props.callbackFromParent(this.state.walletAddress);
-
 		}
 		catch(error) {
 
@@ -131,9 +145,9 @@ class RecoverWalletForm extends React.Component {
     return (
 		<Paper style={styles.paper} zDepth={3} >
 			<div style={styles.paper_content}>
-				<h3 className="frente">Recover your excisting wallet or create a new</h3>
+				<h3 className="frente">Recover your excisting wallet or create a new one</h3>
 				<br/>
-				{this.state.hasWallet && <p>Current wallet address: {this.state.walletAddress}</p>}
+				{this.state.hasWallet && <p style={styles.prompt}>Current wallet address: {this.state.walletAddress}</p>}
 				<p style={styles.prompt}>Enter your mnemonic  in the field below.</p>				
 				<Input
 					style={styles.input}
@@ -145,7 +159,7 @@ class RecoverWalletForm extends React.Component {
 				<br/><Button type="button" onClick={() => this.passTheRoute()} color="accent" variant="flat">Create New Wallet</Button>
 				{this.state.isBusy && <p>Just a sec... We are recovering the wallet info.</p>}
 				<p>{this.state.message}</p>
-				{this.state.walletSaved && <p>Current wallet address:  <a href={this.state.etherscanLink} target='_new'>{this.state.walletAddress}</a> (link to Etherscan.io)</p>}
+				{this.state.walletSaved && <p style={styles.prompt}>Current wallet address:  <a href={this.state.etherscanLink} target='_new'>{this.state.walletAddress}</a> (link to Etherscan.io)</p>}
 			</div>
 		</Paper>
 

@@ -70,16 +70,16 @@ class CreateRsa extends React.Component {
 
 	createNewPublicKey = async () => {
 		try {
-			const key = new NodeRSA()
-			key.generateKeyPair(2048, 65537);
-			//const key = new NodeRSA({b: 512});
+			const key = new NodeRSA({b: 512}); //https://www.npmjs.com/package/node-rsa
+			key.setOptions({encryptionScheme: 'pkcs1'});
+			key.generateKeyPair(); // 2048 of 4096
+			
 			if(!key.isEmpty()) {
-				//key.generateKeyPair(4096); //4096
-				//key.setOptions({encryptionScheme: 'pkcs1'}); //https://stackoverflow.com/questions/33837617/node-rsa-errors-when-trying-to-decrypt-message-with-private-key
 				let maxKeySize = key.getMaxMessageSize(); //512: 22 bytes
-				const publicKey = key.exportKey('pkcs8-public-pem');
+				this.setState({hasSigningKey: true});
+				const publicKey = key.exportKey('pkcs1-public-pem');
 				this.setState({publicKey: publicKey});
-				const privateKey = key.exportKey('pkcs8-private-pem');
+				const privateKey = key.exportKey('pkcs1-private-pem');
 				this.setState({privateKey: privateKey});
 			}
 		}
@@ -100,8 +100,8 @@ class CreateRsa extends React.Component {
 				{!this.state.hasWallet && <p style={styles.prompt}>Please create or recover your address first</p>}
 				{this.state.hasWallet && <Button type="submit" onClick={() => this.createNewPublicKey()} color="primary" variant="raised">Create New Key Pair</Button>}
 				{this.state.isBusy && <p>Just a sec... We are recovering the wallet info.</p>}
-				{this.state.hasSigningKey && <p>Public Key: {this.state.publicKey}</p>}
-				{this.state.hasSigningKey && <p style={styles.prompt}>Private Key: {this.state.privateKey}</p>}
+				{this.state.hasSigningKey && <p>{this.state.publicKey}</p>}
+				{this.state.hasSigningKey && <p>{this.state.privateKey}</p>}
 			</div>
 		</Paper>
 

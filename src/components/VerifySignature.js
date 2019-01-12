@@ -1,10 +1,11 @@
 import React from 'react';
 import ethers from 'ethers';
 import AsyncStorage from '@callstack/async-storage';
-import metacoin_artifacts from '../contracts/EntboxContract.json';
+import socketIOClient from 'socket.io-client';
+//import metacoin_artifacts from '../contracts/EntboxContract.json';
 import Paper from 'material-ui/Paper';
-import ReportProblem from 'material-ui/svg-icons/action/report-problem';
-import Forward from 'material-ui/svg-icons/content/forward';
+//import ReportProblem from 'material-ui/svg-icons/action/report-problem';
+//import Forward from 'material-ui/svg-icons/content/forward';
 import Input from 'muicss/lib/react/input';
 import Textarea from 'muicss/lib/react/textarea';
 import Button from 'muicss/lib/react/button';
@@ -25,7 +26,10 @@ const styles = {
 	},
 	logoSpace: {
 		textAlign: 'center',
-	}
+	},
+	prompt: {
+		color: '#BCB3A2'
+	},
 };
 
 class VerifySignature extends React.Component {
@@ -33,51 +37,56 @@ class VerifySignature extends React.Component {
 		super(props)
 
 		this.state = {
+			endpoint: "http://45.32.186.169:28475",
+			socketId: '',
+			incomingMessage: null,
+			posts: [],
 			message: '',
 			signature: null,
 			approvedSignature: false,
-			connected: false,
 			recoveredAddress: '',
-			inputMessage: '',
+			inputSignature: '',
+			inputSubmitCode: '',
+			hasPosts: false,
 		}
+		this.cofSocket = socketIOClient(this.state.endpoint + "/acquire");
+		
 		this.componentWillMount = this.componentWillMount.bind(this);
 		this.verifySignature = this.verifySignature.bind(this);
-		this.handleChange = this.handleChange.bind(this);
-
-		//this.socket = new WebSocket('ws://45.32.186.169:28475'); //CoF website
-		this.socket = new WebSocket('ws://127.0.0.1:28475/cof');	//test local
-		//this.socket = new WebSocket('ws://echo.websocket.org'); //test
-		this.socket.onopen = () => {
-			this.setState({connected:true})
-		};
-		this.socket.onmessage = (e) => {
-			//this.setState({incoming:e.data})
-			this.handleIncommingSignature(e.data)
-		};
-		this.socket.onerror = (e) => {
-			this.setState({errorMessage: e.message})
-		};
-		this.socket.onclose = (e) => {
-			this.setState({connected:false})
-		};
+		this.handleSignature = this.handleSignature.bind(this);
+		this.handleSubmitCode = this.handleSubmitCode.bind(this);
 	}
 
 	componentWillMount() {
 		var self = this;
+		self.cofSocket.on('connect', function() { 
+			self.setState({socketId: self.cofSocket.id});
+		});
+		self.cofSocket.on('message', function(message) { self.incomingMessage(message) } );
+		AsyncStorage.getItem("acquirePosts").then(acquirePosts => {
+			if (acquirePosts) {
+				this.setState(() => ({ posts: JSON.parse(acquirePosts) }));
+				this.setState(() => ({ hasPosts: true }));
+			}
+		})
 	}
 
-	handleIncommingSignature(message) {
-		if( (typeof message === "object") && (message !== null) )
-			{
-				let signature = JSON.parse(message);
-				this.setState({ signature: signature });
-			}
+	incomingMessage(msg) {
+		this.setState({incomingMessage: msg});
+		let posts = this.state.posts;
+		posts = this.state.posts.slice();
+		posts.push(msg);
+		AsyncStorage.setItem('acquirePosts', JSON.stringify(posts))
+		.then(() => { 
+			this.setState({ posts: posts });
+		})
+		
 	}
 
 	verifySignature = async () => {
-		let signature = JSON.parse(this.state.inputMessage);
+		let signature = JSON.parse(this.state.inputSignature);
 		const SigningKey = ethers._SigningKey;
-		let message = 'hello world';
+		let message = this.state.inputSubmitCode;
 		let messageBytes = ethers.utils.toUtf8Bytes(message);
 		let messageDigest = ethers.utils.keccak256(messageBytes);
 		let recovered = ethers.SigningKey.recover(messageDigest, signature.r,
@@ -91,27 +100,41 @@ class VerifySignature extends React.Component {
 		}
 	}
 
-	handleChange(e) {
+	handleSubmitCode(e) {
 		e.preventDefault();
-		this.setState({inputMessage: e.target.value});
+		this.setState({inputSubmitCode: e.target.value});
+	}
+
+	handleSignature(e) {
+		e.preventDefault();
+		this.setState({inputSignature: e.target.value});
 	}
 
 	render() {
 		return (
 			<Paper style={styles.paper} zDepth={3} >
 				<div style={styles.paper_content}>
-					<h3 className="frente">Verify sig signature sender</h3>
-					<p>Connected: {this.state.connected.toString()}</p>
+					<h3 className="frente">Verify signature and DET acquire submit code</h3>
 					<br/>
+					<div style={styles.prompt}>Chat-ID: {this.state.socketId}</div>
+					<Input
+						style={styles.input}
+						placeholder = "submit code"
+						onChange={this.handleSubmitCode}
+					/>
 					<Textarea
 						style={styles.input}
 						placeholder = "Signature"
-						onChange={this.handleChange}
+						onChange={this.handleSignature}
 					/>
 					<Button type="submit" onClick={() => this.verifySignature()} color="primary" variant="raised">Recover</Button>
-					{this.state.approvedSignature && <p>Recovered address: {this.state.recoveredAddress}</p>} 
-					<p>{this.state.message}</p>
-					{this.state.signature !== null && <p>{JSON.stringify(this.state.signature)}</p>}
+					<br/><br/>
+					<div style={styles.prompt}>Recovered address:</div>
+					<div> {this.state.recoveredAddress}</div>
+					<p>{this.state.message} </p>
+					{this.state.signature !== null && <p style={styles.prompt}>{JSON.stringify(this.state.signature)}</p>}
+					<p>{this.state.incomingMessage}</p>
+					<p style={styles.prompt}>{JSON.stringify(this.state.posts)} </p>
 				</div>
 			</Paper>
 		)
