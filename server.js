@@ -19,12 +19,12 @@ var chat = io
 		var i = allClients.indexOf(socket);
 		allClients.splice(i, 1);
 		chat.emit('users', allClients);
-		console.info('has left', socket.id);
+		//console.info('has left', socket.id);
 	});
 
 	socket.on('message', function(msg){
 		chat.to(msg.user).emit('message', msg);
-		console.info('msg: ', msg);
+		//console.info('msg: ', msg);
 	});
 });
 
@@ -32,7 +32,7 @@ var acquire = io
 .of('/acquire')
 .on('connection', function (socket) {
 	socket.on('message', function(msg){
-		acquire.to(msg.user).emit('message', msg);
+		acquire.emit('message', msg);
 		console.info('acquire: ', msg);
 	});
 	socket.on('disconnect', function(){
@@ -44,7 +44,7 @@ var redeem = io
 .of('/redeem')
 .on('connection', function (socket) {
 	socket.on('message', function(msg){
-		redeem.to(msg.user).emit('message', msg);
+		redeem.emit('message', msg);
 		console.info('redeem: ', msg);
 	});
 	socket.on('disconnect', function(){
